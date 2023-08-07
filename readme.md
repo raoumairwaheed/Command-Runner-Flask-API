@@ -1,6 +1,3 @@
-Certainly! Here's an example of a detailed README that you can include with your API project. Be sure to customize it to match your project's specific details.
-
----
 
 # Command Runner API
 
