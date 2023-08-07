@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Command Runner</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        #output {
+            margin-top: 20px;
+            border: 1px solid #ced4da;
+            padding: 10px;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Command Runner</h1>
+        <div class="input-group mb-3">
+            <input type="text" id="commandInput" class="form-control" placeholder="Enter command">
+            <div class="input-group-append">
+                <button class="btn btn-primary" onclick="runCommand()">Run Command</button>
+            </div>
+        </div>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        function runCommand() {
+            const command = document.getElementById('commandInput').value;
+
+            if (!command) {
+                alert('Please enter a command.');
+                return;
+            }
+
+            fetch('http://127.0.0.1:5000/run_command', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 'command': command })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const outputDiv = document.getElementById('output');
+
+                // If the output is an array, format each line separately
+                let outputHtml = '';
+                if (Array.isArray(data.output)) {
+                    data.output.forEach(line => {
+                        outputHtml += `<p>${line}</p>`;
+                    });
+                } else {
+                    outputHtml = `<p>${data.output}</p>`;
+                }
+
+                outputDiv.innerHTML = `
+                    <h4>Output:</h4>
+                    ${outputHtml}
+                    <p><strong>Return Code:</strong> ${data.returncode}</p>
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
